@@ -1,15 +1,22 @@
 <template>
-  <h1>${heading}</h1>
+  <h4>${heading}</h4>
 
   <!-- <form submit.trigger="addTodo()">
     <input type="text" value.bind="todoDescription">
     <button type="submit">Add Todo</button>
   </form> -->
 
-  <ul>
-    <li repeat.for="ssid of ssids">
-        ${ssid.name}
-      <button click.trigger="add(ssid)">Add</button>
-    </li>
-  </ul>
+  <table class="ssid-table" show.bind="isVisible" >
+    <tr>
+      <th>Name</th>
+      <th>Strength</th>
+      <th style="width:80px; text-align:right">Encrypted</th>
+    </tr>
+    <tr repeat.for="ssid of ssids">
+      <td>${ssid.ssid}</td>
+      <td style="text-align:right">${ssid.rssi}</td>
+      <td  style="text-align:right">${ssid.encryptionType}</td>
+      <td><button click.trigger="add(ssid)">Add</button></td>
+    </tr>
+  </table>
 </template>

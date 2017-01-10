@@ -900,23 +900,6 @@ define('environment',["exports"], function (exports) {
     testing: true
   };
 });
-define('home',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Home = exports.Home = function Home() {
-    _classCallCheck(this, Home);
-  };
-});
 define('main',['exports', './environment'], function (exports, _environment) {
   'use strict';
 
@@ -1093,12 +1076,10 @@ define('route-highlight',['exports', 'aurelia-framework', 'aurelia-router', 'aur
 
     RouteHighlight.prototype.highlight = function highlight() {
       this.element.classList.add('active');
-      console.log({ clistAdd: this.element.classList });
     };
 
     RouteHighlight.prototype.unhighlight = function unhighlight() {
       this.element.classList.remove('active');
-      console.log({ clistDel: this.element.classList });
     };
 
     RouteHighlight.prototype.detached = function detached() {
@@ -1119,7 +1100,7 @@ define('ssid-list',['exports', 'aurelia-http-client'], function (exports, _aurel
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.ssid_list = undefined;
+  exports.SsidList = undefined;
 
   function _classCallCheck(instance, Constructor) {
     if (!(instance instanceof Constructor)) {
@@ -1127,17 +1108,49 @@ define('ssid-list',['exports', 'aurelia-http-client'], function (exports, _aurel
     }
   }
 
-  var ssid_list = exports.ssid_list = function ssid_list() {
-    _classCallCheck(this, ssid_list);
+  var SsidList = exports.SsidList = function () {
+    function SsidList() {
+      var _this = this;
 
-    this.heading = "SSIDs";
-    this.ssids = [];
+      _classCallCheck(this, SsidList);
 
-    var client = new _aureliaHttpClient.HttpClient();
-    client.get('ssids').then(function (data) {
-      console.log(data[0].name);
-    });
-  };
+      this.heading = "Scanning for SSIDs ...";
+      this.ssids = [];
+      this.isVisible = false;
+
+      var client = new _aureliaHttpClient.HttpClient();
+      client.get('http://192.168.1.235/ssids').then(function (data) {
+        var ssids = JSON.parse(data.response);
+        for (var _iterator = ssids, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+          var _ref;
+
+          if (_isArray) {
+            if (_i >= _iterator.length) break;
+            _ref = _iterator[_i++];
+          } else {
+            _i = _iterator.next();
+            if (_i.done) break;
+            _ref = _i.value;
+          }
+
+          var ssid = _ref;
+
+          ssid.encryptionType = ssid.encryptionType == 'NONE' ? "NO" : "yes";
+        }ssids.sort(function (a, b) {
+          return a.rssi < b.rssi;
+        });
+        _this.ssids = ssids;
+        _this.isVisible = true;
+        _this.heading = "SSIDs found";
+      });
+    }
+
+    SsidList.prototype.add = function add(ssid) {
+      console.log("Add:", ssid);
+    };
+
+    return SsidList;
+  }();
 });
 define('resources/index',["exports"], function (exports) {
   "use strict";
@@ -1148,11 +1161,10 @@ define('resources/index',["exports"], function (exports) {
   exports.configure = configure;
   function configure(config) {}
 });
-define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./styles.css\"></require>\n  <require from=\"platform\"></require>\n  <require from=\"apps\"></require>\n  <require from=\"network\"></require>\n  <require from=\"./route-highlight\"></require>\n\n  <img height=40 src=\"images/eridien-logo.jpg\">\n  <div class=\"xy-hdr\">\n    XY ${router.currentInstruction.config.title}\n  </div>\n\n  <nav class=\"navbar\" role=\"navigation\">\n    <a class=\"nav-btn\" route-href=\"route: platform\">\n      <span route-highlight=\"routes: platform\">Platform</span>\n    </a>\n    <a class=\"nav-btn\" route-href=\"route: apps\">\n      <span route-highlight=\"routes: apps\">Apps</span>\n    </a>\n    <a class=\"nav-btn\" route-href=\"route: network\"\n       route-highlight=\"routes: network\">Network\n    </a>\n  </nav>\n\n  <router-view class=\"router-view\"></router-view>\n\n</template>\n"; });
-define('text!apps.html', ['module'], function(module) { module.exports = "<template>\n  APPS\n</template>\n"; });
-define('text!styles.css', ['module'], function(module) { module.exports = "html {\n  box-sizing: border-box;\n}\n*,\n*:before,\n*:after {\n  box-sizing: inherit;\n}\na {\n  text-decoration: none;\n  color: black;\n}\nbody {\n  padding: 10px 20px;\n}\n.navbar {\n  border: 1px solid black;\n  padding: 4px;\n}\n.xy-hdr {\n  float: right;\n  font-size: 20px;\n  font-weight: bold;\n  margin-top: 15px;\n}\n.nav-btn {\n  padding: 2px;\n  border: 1px solid gray;\n  font-weight: bold;\n  border-radius: 5px;\n  background-color: #eee;\n  margin: 5px;\n}\n.active {\n  color: #f44;\n}\n.router-view {\n  width: 100%;\n}\n"; });
-define('text!home.html', ['module'], function(module) { module.exports = "<template>\n  HOME\n</template>\n"; });
-define('text!network.html', ['module'], function(module) { module.exports = "<template>\n  NETWORK\n</template>\n"; });
-define('text!platform.html', ['module'], function(module) { module.exports = "<template>\n  PLATFORM\n</template>\n"; });
-define('text!ssid-list.html', ['module'], function(module) { module.exports = "<template>\n  <h1>${heading}</h1>\n\n  <!-- <form submit.trigger=\"addTodo()\">\n    <input type=\"text\" value.bind=\"todoDescription\">\n    <button type=\"submit\">Add Todo</button>\n  </form> -->\n\n  <ul>\n    <li repeat.for=\"ssid of ssids\">\n        ${ssid.name}\n      <button click.trigger=\"add(ssid)\">Add</button>\n    </li>\n  </ul>\n</template>\n"; });
+define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./styles.css\"></require>\n  <require from=\"platform\"></require>\n  <require from=\"apps\"></require>\n  <require from=\"network\"></require>\n  <require from=\"./route-highlight\"></require>\n\n  <img height=40 src=\"images/eridien-logo.jpg\">\n  <div class=\"xy-hdr\">\n    XY ${router.currentInstruction.config.title}\n  </div>\n\n  <nav class=\"navbar\" role=\"navigation\">\n    <a class=\"nav-btn\" route-href=\"route: platform\"\n      route-highlight=\"routes: platform\">Platform</a>\n    <a class=\"nav-btn\" route-href=\"route: apps\"\n      route-highlight=\"routes: apps\">Apps</a>\n    <a class=\"nav-btn\" route-href=\"route: network\"\n       route-highlight=\"routes: network\">Network</a>\n  </nav>\n\n  <router-view> </router-view>\n\n</template>\n"; });
+define('text!apps.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"router-view\">\n    APPS\n  <div>\n</template>\n"; });
+define('text!styles.css', ['module'], function(module) { module.exports = "html {\n  box-sizing: border-box;\n}\n*,\n*:before,\n*:after {\n  box-sizing: inherit;\n}\na {\n  text-decoration: none;\n  color: black;\n}\nbody {\n  padding: 10px 20px;\n}\n.navbar {\n  border: 1px solid black;\n  padding: 4px;\n}\n.xy-hdr {\n  float: right;\n  font-size: 20px;\n  font-weight: bold;\n  margin-top: 15px;\n}\n.nav-btn {\n  padding: 2px;\n  border: 1px solid gray;\n  font-weight: bold;\n  border-radius: 5px;\n  background-color: #eee;\n  margin: 5px;\n}\n.nav-btn.active {\n  color: gray;\n}\n.router-view {\n  width: 100%;\n  margin-top: 15px;\n}\n.ssid-table th {\n  text-align: left;\n}\n.ssid-table td {\n  padding: 3px 5px;\n}\n"; });
+define('text!network.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./ssid-list\"></require>\n\n  <div class=\"router-view\">\n    <ssid-list></ssid-list>\n  <div>\n</template>\n"; });
+define('text!platform.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"router-view\">\n    PLATFORM\n  <div>\n</template>\n"; });
+define('text!ssid-list.html', ['module'], function(module) { module.exports = "<template>\n  <h4>${heading}</h4>\n\n  <!-- <form submit.trigger=\"addTodo()\">\n    <input type=\"text\" value.bind=\"todoDescription\">\n    <button type=\"submit\">Add Todo</button>\n  </form> -->\n\n  <table class=\"ssid-table\" show.bind=\"isVisible\" >\n    <tr>\n      <th>Name</th>\n      <th>Strength</th>\n      <th style=\"width:80px; text-align:right\">Encrypted</th>\n    </tr>\n    <tr repeat.for=\"ssid of ssids\">\n      <td>${ssid.ssid}</td>\n      <td style=\"text-align:right\">${ssid.rssi}</td>\n      <td  style=\"text-align:right\">${ssid.encryptionType}</td>\n      <td><button click.trigger=\"add(ssid)\">Add</button></td>\n    </tr>\n  </table>\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map

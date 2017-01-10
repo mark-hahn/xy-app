@@ -43,12 +43,10 @@ export class RouteHighlight {
 
     highlight() {
       this.element.classList.add('active');
-      console.log({clistAdd:this.element.classList});
     }
 
     unhighlight() {
       this.element.classList.remove('active');
-      console.log({clistDel:this.element.classList});
     }
 
     detached() {
