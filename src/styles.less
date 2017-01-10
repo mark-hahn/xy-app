@@ -2,7 +2,10 @@
 html { box-sizing: border-box; }
 *, *:before, *:after { box-sizing: inherit; }
 
-a { text-decoration: none; }
+a {
+  text-decoration: none;
+  color: black;
+}
 
 body {
   padding: 10px 20px;
@@ -12,7 +15,6 @@ body {
   border: 1px solid black;
   padding: 4px;
 }
-
 .xy-hdr {
   float:right;
   font-size:20px;
@@ -21,12 +23,17 @@ body {
 }
 
 .nav-btn {
+  padding:2px;
   border: 1px solid gray;
   font-weight:bold;
-  font-color:blue;
+  border-radius: 5px;
+  background-color:#eee;
   margin:5px;
+}
+.active {
+  color:#f44;
 }
 
 .router-view {
-  width:100%; 
+  width:100%;
 }

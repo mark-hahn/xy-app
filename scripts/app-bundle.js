@@ -990,6 +990,129 @@ define('platform',["exports"], function (exports) {
     _classCallCheck(this, Platform);
   };
 });
+define('route-highlight',['exports', 'aurelia-framework', 'aurelia-router', 'aurelia-event-aggregator'], function (exports, _aureliaFramework, _aureliaRouter, _aureliaEventAggregator) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.RouteHighlight = undefined;
+
+  function _initDefineProp(target, property, descriptor, context) {
+    if (!descriptor) return;
+    Object.defineProperty(target, property, {
+      enumerable: descriptor.enumerable,
+      configurable: descriptor.configurable,
+      writable: descriptor.writable,
+      value: descriptor.initializer ? descriptor.initializer.call(context) : void 0
+    });
+  }
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  function _applyDecoratedDescriptor(target, property, decorators, descriptor, context) {
+    var desc = {};
+    Object['ke' + 'ys'](descriptor).forEach(function (key) {
+      desc[key] = descriptor[key];
+    });
+    desc.enumerable = !!desc.enumerable;
+    desc.configurable = !!desc.configurable;
+
+    if ('value' in desc || desc.initializer) {
+      desc.writable = true;
+    }
+
+    desc = decorators.slice().reverse().reduce(function (desc, decorator) {
+      return decorator(target, property, desc) || desc;
+    }, desc);
+
+    if (context && desc.initializer !== void 0) {
+      desc.value = desc.initializer ? desc.initializer.call(context) : void 0;
+      desc.initializer = undefined;
+    }
+
+    if (desc.initializer === void 0) {
+      Object['define' + 'Property'](target, property, desc);
+      desc = null;
+    }
+
+    return desc;
+  }
+
+  function _initializerWarningHelper(descriptor, context) {
+    throw new Error('Decorating class property failed. Please ensure that transform-class-properties is enabled.');
+  }
+
+  var _dec, _dec2, _class, _desc, _value, _class2, _descriptor;
+
+  var RouteHighlight = exports.RouteHighlight = (_dec = (0, _aureliaFramework.inject)(Element, _aureliaRouter.Router, _aureliaEventAggregator.EventAggregator), _dec2 = (0, _aureliaFramework.customAttribute)('route-highlight'), _dec(_class = _dec2(_class = (_class2 = function () {
+    function RouteHighlight(element, router, eventAggregator) {
+      var _this = this;
+
+      _classCallCheck(this, RouteHighlight);
+
+      _initDefineProp(this, 'routes', _descriptor, this);
+
+      this.element = element;
+      this.router = router;
+      this.ea = eventAggregator;
+
+      this.subscription = this.ea.subscribe('router:navigation:complete', function () {
+        return _this.refresh();
+      });
+    }
+
+    RouteHighlight.prototype.routesChanged = function routesChanged() {
+      this.refresh();
+    };
+
+    RouteHighlight.prototype.refresh = function refresh() {
+      var instruction = this.router.currentInstruction;
+      var isActive = false;
+
+      if (instruction) {
+        var activeRoute = instruction.config.name;
+
+        if (Array.isArray(this.routes)) {
+          isActive = this.routes.includes(activeRoute);
+        } else {
+          isActive = this.routes === activeRoute;
+        }
+      }
+
+      if (isActive) {
+        this.highlight();
+      } else {
+        this.unhighlight();
+      }
+    };
+
+    RouteHighlight.prototype.highlight = function highlight() {
+      this.element.classList.add('active');
+      console.log({ clistAdd: this.element.classList });
+    };
+
+    RouteHighlight.prototype.unhighlight = function unhighlight() {
+      this.element.classList.remove('active');
+      console.log({ clistDel: this.element.classList });
+    };
+
+    RouteHighlight.prototype.detached = function detached() {
+      if (this.subscription) {
+        this.subscription();
+      }
+    };
+
+    return RouteHighlight;
+  }(), (_descriptor = _applyDecoratedDescriptor(_class2.prototype, 'routes', [_aureliaFramework.bindable], {
+    enumerable: true,
+    initializer: null
+  })), _class2)) || _class) || _class);
+});
 define('ssid-list',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
   'use strict';
 
@@ -1025,9 +1148,9 @@ define('resources/index',["exports"], function (exports) {
   exports.configure = configure;
   function configure(config) {}
 });
-define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./styles.css\"></require>\n  <require from=\"platform\"></require>\n  <require from=\"apps\"></require>\n  <require from=\"network\"></require>\n\n  <img height=40 src=\"images/eridien-logo.jpg\">\n  <div class=\"xy-hdr\">\n    XY ${router.currentInstruction.config.title}\n  </div>\n\n  <nav class=\"navbar\" role=\"navigation\">\n    <a class=\"nav-btn\" href=\"#\">\n      <span>Platform</span>\n    </a>\n    <a class=\"nav-btn\" href=\"#apps\">\n      <span>Apps</span>\n    </a>\n    <a class=\"nav-btn\" href=\"#network\">\n      <span>Network</span>\n    </a>\n  </nav>\n\n  <router-view class=\"router-view\"></router-view>\n\n</template>\n"; });
+define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./styles.css\"></require>\n  <require from=\"platform\"></require>\n  <require from=\"apps\"></require>\n  <require from=\"network\"></require>\n  <require from=\"./route-highlight\"></require>\n\n  <img height=40 src=\"images/eridien-logo.jpg\">\n  <div class=\"xy-hdr\">\n    XY ${router.currentInstruction.config.title}\n  </div>\n\n  <nav class=\"navbar\" role=\"navigation\">\n    <a class=\"nav-btn\" route-href=\"route: platform\">\n      <span route-highlight=\"routes: platform\">Platform</span>\n    </a>\n    <a class=\"nav-btn\" route-href=\"route: apps\">\n      <span route-highlight=\"routes: apps\">Apps</span>\n    </a>\n    <a class=\"nav-btn\" route-href=\"route: network\"\n       route-highlight=\"routes: network\">Network\n    </a>\n  </nav>\n\n  <router-view class=\"router-view\"></router-view>\n\n</template>\n"; });
 define('text!apps.html', ['module'], function(module) { module.exports = "<template>\n  APPS\n</template>\n"; });
-define('text!styles.css', ['module'], function(module) { module.exports = "html {\n  box-sizing: border-box;\n}\n*,\n*:before,\n*:after {\n  box-sizing: inherit;\n}\na {\n  text-decoration: none;\n}\nbody {\n  padding: 10px 20px;\n}\n.navbar {\n  border: 1px solid black;\n  padding: 4px;\n}\n.xy-hdr {\n  float: right;\n  font-size: 20px;\n  font-weight: bold;\n  margin-top: 15px;\n}\n.nav-btn {\n  border: 1px solid gray;\n  font-weight: bold;\n  font-color: blue;\n  margin: 5px;\n}\n.router-view {\n  width: 100%;\n}\n"; });
+define('text!styles.css', ['module'], function(module) { module.exports = "html {\n  box-sizing: border-box;\n}\n*,\n*:before,\n*:after {\n  box-sizing: inherit;\n}\na {\n  text-decoration: none;\n  color: black;\n}\nbody {\n  padding: 10px 20px;\n}\n.navbar {\n  border: 1px solid black;\n  padding: 4px;\n}\n.xy-hdr {\n  float: right;\n  font-size: 20px;\n  font-weight: bold;\n  margin-top: 15px;\n}\n.nav-btn {\n  padding: 2px;\n  border: 1px solid gray;\n  font-weight: bold;\n  border-radius: 5px;\n  background-color: #eee;\n  margin: 5px;\n}\n.active {\n  color: #f44;\n}\n.router-view {\n  width: 100%;\n}\n"; });
 define('text!home.html', ['module'], function(module) { module.exports = "<template>\n  HOME\n</template>\n"; });
 define('text!network.html', ['module'], function(module) { module.exports = "<template>\n  NETWORK\n</template>\n"; });
 define('text!platform.html', ['module'], function(module) { module.exports = "<template>\n  PLATFORM\n</template>\n"; });
