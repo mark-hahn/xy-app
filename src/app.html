@@ -1,16 +1,20 @@
 <template>
   <require from="./styles.css"></require>
+  <require from="apps"></require>
+  <require from="network"></require>
 
   <img height=40 src="images/eridien-logo.jpg">
   <div class="xy-hdr">XY Platform</div>
 
   <nav class="navbar" role="navigation">
-    <a class="nav-btn" href="#">
+    <a class="nav-btn" href="#apps">
       <span>Apps</span>
     </a>
-    <a class="nav-btn" href="#">
+    <a class="nav-btn" href="#network">
       <span>Network</span>
     </a>
   </nav>
+
+  <router-view class="router-view"></router-view>
 
 </template>

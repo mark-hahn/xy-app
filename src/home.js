@@ -1,6 +1,6 @@
 
 
-export class Network {
+export class Home {
   constructor() {
   }
 }

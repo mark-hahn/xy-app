@@ -18,7 +18,7 @@ define('app',['exports'], function (exports) {
 
     App.prototype.configureRouter = function configureRouter(config, router) {
       config.title = 'XY';
-      config.map([{ route: '', moduleId: 'no-selection', title: 'Select' }, { route: 'apps', moduleId: 'apps', name: 'apps' }, { route: 'network', moduleId: 'network', name: 'network' }]);
+      config.map([{ route: '', moduleId: 'home', title: 'home' }, { route: 'apps', moduleId: 'apps', name: 'apps', nav: true }, { route: 'network', moduleId: 'network', name: 'network', nav: true }]);
 
       this.router = router;
     };
@@ -910,8 +910,22 @@ define('main',['exports', './environment'], function (exports, _environment) {
     });
   }
 });
-define('network',[], function () {
+define('network',["exports"], function (exports) {
   "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Network = exports.Network = function Network() {
+    _classCallCheck(this, Network);
+  };
 });
 define('ssid-list',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
   'use strict';
@@ -939,7 +953,16 @@ define('ssid-list',['exports', 'aurelia-http-client'], function (exports, _aurel
     });
   };
 });
-define('todo',["exports"], function (exports) {
+define('resources/index',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+  function configure(config) {}
+});
+define('home',["exports"], function (exports) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
@@ -952,24 +975,31 @@ define('todo',["exports"], function (exports) {
     }
   }
 
-  var Todo = exports.Todo = function Todo(description) {
-    _classCallCheck(this, Todo);
-
-    this.description = description;
-    this.done = false;
+  var Home = exports.Home = function Home() {
+    _classCallCheck(this, Home);
   };
 });
-define('resources/index',["exports"], function (exports) {
+define('apps',["exports"], function (exports) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
     value: true
   });
-  exports.configure = configure;
-  function configure(config) {}
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Apps = exports.Apps = function Apps() {
+    _classCallCheck(this, Apps);
+  };
 });
-define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./styles.css\"></require>\n\n  <img height=40 src=\"images/eridien-logo.jpg\">\n  <div class=\"xy-hdr\">XY Platform</div>\n\n  <nav class=\"navbar\" role=\"navigation\">\n    <a class=\"nav-btn\" href=\"#\">\n      <span>Apps</span>\n    </a>\n    <a class=\"nav-btn\" href=\"#\">\n      <span>Network</span>\n    </a>\n  </nav>\n\n</template>\n"; });
-define('text!styles.css', ['module'], function(module) { module.exports = "html {\n  box-sizing: border-box;\n}\n*,\n*:before,\n*:after {\n  box-sizing: inherit;\n}\na {\n  text-decoration: none;\n}\nbody {\n  padding: 10px 20px;\n}\n.navbar {\n  border: 1px solid black;\n  padding: 4px;\n}\n.xy-hdr {\n  float: right;\n  font-size: 20px;\n  font-weight: bold;\n  margin-top: 15px;\n}\n.nav-btn {\n  border: 1px solid gray;\n  font-weight: bold;\n  font-color: blue;\n  margin: 5px;\n}\n"; });
-define('text!network.html', ['module'], function(module) { module.exports = "<template>\n  <img height=25 src=\"eridien-logo.jpg\">\n  <div style=\"float:right\">XY App Network Settings</div>\n</template>\n"; });
+define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./styles.css\"></require>\n  <require from=\"apps\"></require>\n  <require from=\"network\"></require>\n\n  <img height=40 src=\"images/eridien-logo.jpg\">\n  <div class=\"xy-hdr\">XY Platform</div>\n\n  <nav class=\"navbar\" role=\"navigation\">\n    <a class=\"nav-btn\" href=\"#apps\">\n      <span>Apps</span>\n    </a>\n    <a class=\"nav-btn\" href=\"#network\">\n      <span>Network</span>\n    </a>\n  </nav>\n\n  <router-view class=\"router-view\"></router-view>\n\n</template>\n"; });
+define('text!network.html', ['module'], function(module) { module.exports = "<template>\n  NETWORK\n</template>\n"; });
+define('text!styles.css', ['module'], function(module) { module.exports = "html {\n  box-sizing: border-box;\n}\n*,\n*:before,\n*:after {\n  box-sizing: inherit;\n}\na {\n  text-decoration: none;\n}\nbody {\n  padding: 10px 20px;\n}\n.navbar {\n  border: 1px solid black;\n  padding: 4px;\n}\n.xy-hdr {\n  float: right;\n  font-size: 20px;\n  font-weight: bold;\n  margin-top: 15px;\n}\n.nav-btn {\n  border: 1px solid gray;\n  font-weight: bold;\n  font-color: blue;\n  margin: 5px;\n}\n.router-view {\n  width: 100%;\n}\n"; });
 define('text!ssid-list.html', ['module'], function(module) { module.exports = "<template>\n  <h1>${heading}</h1>\n\n  <!-- <form submit.trigger=\"addTodo()\">\n    <input type=\"text\" value.bind=\"todoDescription\">\n    <button type=\"submit\">Add Todo</button>\n  </form> -->\n\n  <ul>\n    <li repeat.for=\"ssid of ssids\">\n        ${ssid.name}\n      <button click.trigger=\"add(ssid)\">Add</button>\n    </li>\n  </ul>\n</template>\n"; });
+define('text!home.html', ['module'], function(module) { module.exports = "<template>\n  HOME\n</template>\n"; });
+define('text!apps.html', ['module'], function(module) { module.exports = "<template>\n  APPS\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map

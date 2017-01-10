@@ -1,6 +1,5 @@
 
-
-export class Network {
+export class Apps {
   constructor() {
   }
 }
