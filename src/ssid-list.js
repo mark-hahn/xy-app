@@ -11,9 +11,9 @@ export class ssid_list {
     client.get('ssids').then(data => { console.log(data[0].name) });
   }
 
-  add(name) {
-    this.ssids.push(name);
-  }
+  // add(name) {
+  //   this.ssids.push(name);
+  // }
 
   // add(name) {
   //   let index = this.ssids.indexOf(name);
