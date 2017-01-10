@@ -15,8 +15,9 @@
     <tr repeat.for="ssid of ssids">
       <td>${ssid.ssid}</td>
       <td style="text-align:right">${ssid.rssi}</td>
-      <td  style="text-align:right">${ssid.encryptionType}</td>
-      <td><button click.trigger="add(ssid)">Add</button></td>
+      <td style="text-align:right">${ssid.encryptionType}</td>
+      <td><button click.trigger="add(ssid)"
+           style="margin-left:25px; text-align:right">Add</button></td>
     </tr>
   </table>
 </template>

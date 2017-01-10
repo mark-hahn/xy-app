@@ -1,1 +1,3 @@
-../arduino/xy/b
+
+rm -rf scripts/*
+au run --watch

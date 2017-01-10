@@ -1,6 +1,6 @@
-
 import {HttpClient} from 'aurelia-http-client';
 
+let DEBUG_HOST = 'http://192.168.1.235';
 
 export class SsidList {
   constructor() {
@@ -9,12 +9,13 @@ export class SsidList {
     this.isVisible = false;
 
     let client = new HttpClient();
-    client.get('http://192.168.1.235/ssids')
+    let host = (Location.port == 9000 ? DEBUG_HOST  : '');
+    client.get(host + '/ssids')
       .then(data => {
         let ssids = JSON.parse(data.response);
         for(let ssid of ssids)
           ssid.encryptionType =
-            (ssid.encryptionType == 'NONE') ? "NO" : "yes";
+            (ssid.encryptionType == 'NONE') ? "" : "yes";
         ssids.sort((a,b) => a.rssi < b.rssi);
         this.ssids = ssids;
         this.isVisible = true;
@@ -25,11 +26,4 @@ export class SsidList {
   add(ssid) {
     console.log("Add:",ssid);
   }
-
-  // add(name) {
-  //   let index = this.ssids.indexOf(name);
-  //   if (index !== -1) {
-  //     this.todos.splice(index, 1);
-  //   }
-  // }
 }
