@@ -1,12 +1,18 @@
 <template>
   <require from="./styles.css"></require>
+  <require from="platform"></require>
   <require from="apps"></require>
   <require from="network"></require>
 
   <img height=40 src="images/eridien-logo.jpg">
-  <div class="xy-hdr">XY Platform</div>
+  <div class="xy-hdr">
+    XY ${router.currentInstruction.config.title}
+  </div>
 
   <nav class="navbar" role="navigation">
+    <a class="nav-btn" href="#">
+      <span>Platform</span>
+    </a>
     <a class="nav-btn" href="#apps">
       <span>Apps</span>
     </a>
