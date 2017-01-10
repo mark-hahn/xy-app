@@ -3,7 +3,7 @@ export class App {
     config.title = 'XY';
     config.map([
       { route: '',             moduleId: 'no-selection',   title: 'Select'},
-      { route: 'apps',         moduleId: 'apps',        name:'apps' }
+      { route: 'apps',         moduleId: 'apps',        name:'apps' },
       { route: 'network',      moduleId: 'network',        name:'network' }
     ]);
 
