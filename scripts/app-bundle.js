@@ -1116,14 +1116,19 @@ define('ssid-list',['exports', 'aurelia-http-client'], function (exports, _aurel
 
       _classCallCheck(this, SsidList);
 
-      this.heading = "Scanning for SSIDs ...";
+      this.heading = "Scanning for SSIDs.";
       this.ssids = [];
       this.isVisible = false;
 
       var client = new _aureliaHttpClient.HttpClient();
-      var host = Location.port == 9000 ? DEBUG_HOST : '';
+      var host = location.port === '9000' ? DEBUG_HOST : '';
       client.get(host + '/ssids').then(function (data) {
-        var ssids = JSON.parse(data.response);
+        try {
+          var ssids = JSON.parse(data.response);
+        } catch (e) {
+          console.log('Invalid json in ssids ajax response', data.response);
+          return;
+        }
         for (var _iterator = ssids, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
           var _ref;
 
@@ -1140,11 +1145,11 @@ define('ssid-list',['exports', 'aurelia-http-client'], function (exports, _aurel
 
           ssid.encryptionType = ssid.encryptionType == 'NONE' ? "" : "yes";
         }ssids.sort(function (a, b) {
-          return a.rssi < b.rssi;
+          return b.rssi - a.rssi;
         });
         _this.ssids = ssids;
         _this.isVisible = true;
-        _this.heading = "SSIDs found";
+        _this.heading = "SSIDs found ...";
       });
     }
 
@@ -1154,6 +1159,15 @@ define('ssid-list',['exports', 'aurelia-http-client'], function (exports, _aurel
 
     return SsidList;
   }();
+});
+define('resources/index',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+  function configure(config) {}
 });
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./styles.css\"></require>\n  <require from=\"platform\"></require>\n  <require from=\"apps\"></require>\n  <require from=\"network\"></require>\n  <require from=\"./route-highlight\"></require>\n\n  <img height=40 src=\"images/eridien-logo.jpg\">\n  <div class=\"xy-hdr\">\n    XY ${router.currentInstruction.config.title}\n  </div>\n\n  <nav class=\"navbar\" role=\"navigation\">\n    <a class=\"nav-btn\" route-href=\"route: platform\"\n      route-highlight=\"routes: platform\">Platform</a>\n    <a class=\"nav-btn\" route-href=\"route: apps\"\n      route-highlight=\"routes: apps\">Apps</a>\n    <a class=\"nav-btn\" route-href=\"route: network\"\n       route-highlight=\"routes: network\">Network</a>\n  </nav>\n\n  <router-view> </router-view>\n\n</template>\n"; });
 define('text!styles.css', ['module'], function(module) { module.exports = "html {\n  box-sizing: border-box;\n}\n*,\n*:before,\n*:after {\n  box-sizing: inherit;\n}\na {\n  text-decoration: none;\n  color: black;\n}\nbody {\n  padding: 10px 20px;\n}\n.navbar {\n  border: 1px solid black;\n  padding: 4px;\n}\n.xy-hdr {\n  float: right;\n  font-size: 20px;\n  font-weight: bold;\n  margin-top: 15px;\n}\n.nav-btn {\n  padding: 2px;\n  border: 1px solid gray;\n  font-weight: bold;\n  border-radius: 5px;\n  background-color: #eee;\n  margin: 5px;\n}\n.nav-btn.active {\n  color: gray;\n}\n.router-view {\n  width: 100%;\n  margin-top: 15px;\n}\n.ssid-table th {\n  text-align: left;\n}\n.ssid-table td {\n  padding: 3px 5px;\n}\n"; });
