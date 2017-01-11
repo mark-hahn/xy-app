@@ -4,7 +4,6 @@ export class SsidForm {
   constructor() {
     this.eeprom_ssids = [];
     this.refresh();
-    this.isVisible = false;
   }
 
   refresh() {

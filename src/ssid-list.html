@@ -4,11 +4,10 @@
 
   <div style="font-weight:bold; float:left; margin-top:0px"
        show.bind="!isVisible">Scanning for SSIDs ...</div>
-  <div style="font-weight:bold; float:left"
+  <div style="font-weight:bold; float:left; margin:15px 0;"
        show.bind="isVisible">Add SSID to list above.
   </div>
-
-  <button  show.bind="isVisible" style="margin-left:20px"
+  <button  show.bind="isVisible" style="margin:15px 20px"
            click.trigger="refresh()" type="submit">Refresh</button>
 
   <table class="ssid-table" show.bind="isVisible">
