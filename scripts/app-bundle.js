@@ -20,15 +20,15 @@ define('app',['exports'], function (exports) {
       config.title = 'XY';
       config.map([{ route: '',
         title: 'Platform',
-        moduleId: 'platform',
+        moduleId: 'platform/platform',
         name: 'platform',
         nav: true }, { route: 'apps',
         title: 'Apps',
-        moduleId: 'apps',
+        moduleId: 'apps/apps',
         name: 'apps',
         nav: true }, { route: 'network',
         title: 'Network',
-        moduleId: 'network',
+        moduleId: 'network/network',
         name: 'network',
         nav: true }]);
 
@@ -38,7 +38,117 @@ define('app',['exports'], function (exports) {
     return App;
   }();
 });
-define('apps',["exports"], function (exports) {
+define('environment',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.default = {
+    debug: true,
+    testing: true
+  };
+});
+define('main',['exports', './environment'], function (exports, _environment) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.configure = configure;
+
+  var _environment2 = _interopRequireDefault(_environment);
+
+  function _interopRequireDefault(obj) {
+    return obj && obj.__esModule ? obj : {
+      default: obj
+    };
+  }
+
+  window.DEBUG_HOST = 'http://192.168.1.243';
+
+  Promise.config({
+    longStackTraces: _environment2.default.debug,
+    warnings: {
+      wForgottenReturn: false
+    }
+  });
+
+  function configure(aurelia) {
+    aurelia.use.standardConfiguration().feature('resources');
+
+    if (_environment2.default.debug) {
+      aurelia.use.developmentLogging();
+    }
+
+    if (_environment2.default.testing) {
+      aurelia.use.plugin('aurelia-testing');
+    }
+
+    aurelia.start().then(function () {
+      return aurelia.setRoot();
+    });
+  }
+});
+define('ssid-form',['exports', 'lib/aurelia-http-client'], function (exports, _aureliaHttpClient) {
+  'use strict';
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+  exports.SsidForm = undefined;
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var SsidForm = exports.SsidForm = function () {
+    function SsidForm() {
+      _classCallCheck(this, SsidForm);
+
+      this.eeprom_ssids = [];
+      this.refresh();
+    }
+
+    SsidForm.prototype.refresh = function refresh() {
+      var _this = this;
+
+      this.isVisible = false;
+      this.heading = "Loading WiFi AP settings ...";
+
+      var client = new _aureliaHttpClient.HttpClient();
+      var host = location.port === '9000' ? window.DEBUG_HOST : '';
+      client.get(host + '/eepromssids').then(function (data) {
+        try {
+          var ssids = JSON.parse(data.response);
+        } catch (e) {
+          console.log('Invalid json in eepromssids ajax response', data.response);
+          return;
+        }
+        _this.apSsid = ssids[0].apSsid;
+        _this.apPwd = ssids[0].apPwd;
+        for (var i = 1; i < ssids.length; i++) {
+          var ssid = ssids[i];
+          ssid.staticIp = ssid.staticIp == '0.0.0.0' ? "" : ssid.staticIp;
+        }
+        _this.eeprom_ssids = ssids.slice(1);
+        _this.isVisible = true;
+      });
+    };
+
+    SsidForm.prototype.submit = function submit() {
+      var client = new _aureliaHttpClient.HttpClient();
+      var jsonArr = [{ apSsid: this.apSsid, apPwd: this.apPwd }].concat(this.eeprom_ssids);
+      console.log("eeprom_ssids save:", jsonArr);
+      client.post(window.DEBUG_HOST + '/setssids', jsonArr);
+    };
+
+    return SsidForm;
+  }();
+});
+define('apps/apps',["exports"], function (exports) {
   "use strict";
 
   Object.defineProperty(exports, "__esModule", {
@@ -55,7 +165,7 @@ define('apps',["exports"], function (exports) {
     _classCallCheck(this, Apps);
   };
 });
-define('aurelia-http-client',['exports', 'aurelia-path', 'aurelia-pal'], function (exports, _aureliaPath, _aureliaPal) {
+define('lib/aurelia-http-client',['exports', 'aurelia-path', 'aurelia-pal'], function (exports, _aureliaPath, _aureliaPal) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -889,93 +999,7 @@ define('aurelia-http-client',['exports', 'aurelia-path', 'aurelia-pal'], functio
     return HttpClient;
   }();
 });
-define('environment',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.default = {
-    debug: true,
-    testing: true
-  };
-});
-define('main',['exports', './environment'], function (exports, _environment) {
-  'use strict';
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-  exports.configure = configure;
-
-  var _environment2 = _interopRequireDefault(_environment);
-
-  function _interopRequireDefault(obj) {
-    return obj && obj.__esModule ? obj : {
-      default: obj
-    };
-  }
-
-  window.DEBUG_HOST = 'http://192.168.1.235';
-
-  Promise.config({
-    longStackTraces: _environment2.default.debug,
-    warnings: {
-      wForgottenReturn: false
-    }
-  });
-
-  function configure(aurelia) {
-    aurelia.use.standardConfiguration().feature('resources');
-
-    if (_environment2.default.debug) {
-      aurelia.use.developmentLogging();
-    }
-
-    if (_environment2.default.testing) {
-      aurelia.use.plugin('aurelia-testing');
-    }
-
-    aurelia.start().then(function () {
-      return aurelia.setRoot();
-    });
-  }
-});
-define('network',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Network = exports.Network = function Network() {
-    _classCallCheck(this, Network);
-  };
-});
-define('platform',["exports"], function (exports) {
-  "use strict";
-
-  Object.defineProperty(exports, "__esModule", {
-    value: true
-  });
-
-  function _classCallCheck(instance, Constructor) {
-    if (!(instance instanceof Constructor)) {
-      throw new TypeError("Cannot call a class as a function");
-    }
-  }
-
-  var Platform = exports.Platform = function Platform() {
-    _classCallCheck(this, Platform);
-  };
-});
-define('route-highlight',['exports', 'aurelia-framework', 'aurelia-router', 'aurelia-event-aggregator'], function (exports, _aureliaFramework, _aureliaRouter, _aureliaEventAggregator) {
+define('lib/route-highlight',['exports', 'aurelia-framework', 'aurelia-router', 'aurelia-event-aggregator'], function (exports, _aureliaFramework, _aureliaRouter, _aureliaEventAggregator) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -1096,7 +1120,24 @@ define('route-highlight',['exports', 'aurelia-framework', 'aurelia-router', 'aur
     initializer: null
   })), _class2)) || _class) || _class);
 });
-define('ssid-form',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
+define('network/network',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Network = exports.Network = function Network() {
+    _classCallCheck(this, Network);
+  };
+});
+define('network/ssid-form',['exports', 'lib/aurelia-http-client'], function (exports, _aureliaHttpClient) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -1154,7 +1195,7 @@ define('ssid-form',['exports', 'aurelia-http-client'], function (exports, _aurel
     return SsidForm;
   }();
 });
-define('ssid-list',['exports', 'aurelia-http-client'], function (exports, _aureliaHttpClient) {
+define('network/ssid-list',['exports', 'lib/aurelia-http-client'], function (exports, _aureliaHttpClient) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -1220,6 +1261,23 @@ define('ssid-list',['exports', 'aurelia-http-client'], function (exports, _aurel
     return SsidList;
   }();
 });
+define('platform/platform',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var Platform = exports.Platform = function Platform() {
+    _classCallCheck(this, Platform);
+  };
+});
 define('resources/index',["exports"], function (exports) {
   "use strict";
 
@@ -1229,11 +1287,12 @@ define('resources/index',["exports"], function (exports) {
   exports.configure = configure;
   function configure(config) {}
 });
-define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./styles.css\"></require>\n  <require from=\"platform\"></require>\n  <require from=\"apps\"></require>\n  <require from=\"network\"></require>\n  <require from=\"./route-highlight\"></require>\n\n  <img height=40 src=\"images/eridien-logo.jpg\">\n  <div class=\"xy-hdr\">\n    XY ${router.currentInstruction.config.title}\n  </div>\n\n  <nav class=\"navbar\" role=\"navigation\">\n    <a class=\"nav-btn\" route-href=\"route: platform\"\n      route-highlight=\"routes: platform\">Platform</a>\n    <a class=\"nav-btn\" route-href=\"route: apps\"\n      route-highlight=\"routes: apps\">Apps</a>\n    <a class=\"nav-btn\" route-href=\"route: network\"\n       route-highlight=\"routes: network\">Network</a>\n  </nav>\n\n  <router-view> </router-view>\n\n</template>\n"; });
-define('text!apps.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"router-view\">\n    APPS\n  <div>\n</template>\n"; });
-define('text!styles.css', ['module'], function(module) { module.exports = "html {\n  box-sizing: border-box;\n}\n*,\n*:before,\n*:after {\n  box-sizing: inherit;\n}\na {\n  text-decoration: none;\n  color: black;\n}\nbody {\n  padding: 10px 20px;\n}\n.navbar {\n  border: 1px solid black;\n  padding: 4px;\n}\n.xy-hdr {\n  float: right;\n  font-size: 20px;\n  font-weight: bold;\n  margin-top: 15px;\n}\n.nav-btn {\n  padding: 2px;\n  border: 1px solid gray;\n  font-weight: bold;\n  border-radius: 5px;\n  background-color: #eee;\n  margin: 5px;\n}\n.nav-btn.active {\n  color: gray;\n}\n.router-view {\n  width: 100%;\n  margin-top: 15px;\n}\n.ssid-table {\n  margin-top: 5px;\n}\n.ssid-table th {\n  text-align: left;\n}\n.ssid-table td {\n  padding: 3px 5px;\n}\n.ssid-table td button {\n  margin-right: 15px;\n}\n"; });
-define('text!network.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./ssid-form\"></require>\n  <require from=\"./ssid-list\"></require>\n\n  <div class=\"router-view\">\n    <ssid-form></ssid-form>\n    <ssid-list></ssid-list>\n  <div>\n</template>\n"; });
-define('text!platform.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"router-view\">\n    PLATFORM\n  <div>\n</template>\n"; });
+define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./styles.css\"></require>\n  <require from=\"platform/platform\"></require>\n  <require from=\"apps/apps\"></require>\n  <require from=\"network/network\"></require>\n  <require from=\"lib/route-highlight\"></require>\n\n  <img height=40 src=\"images/eridien-logo.jpg\">\n  <div class=\"xy-hdr\">\n    XY ${router.currentInstruction.config.title}\n  </div>\n\n  <nav class=\"navbar\" role=\"navigation\">\n    <a class=\"nav-btn\" route-href=\"route: platform\"\n      route-highlight=\"routes: platform\">Platform</a>\n    <a class=\"nav-btn\" route-href=\"route: apps\"\n      route-highlight=\"routes: apps\">Apps</a>\n    <a class=\"nav-btn\" route-href=\"route: network\"\n       route-highlight=\"routes: network\">Network</a>\n  </nav>\n\n  <router-view> </router-view>\n\n</template>\n"; });
 define('text!ssid-form.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"margin:50px 0 15px 0; border:1px solid black; padding:5px\">\n\n    <h4 show.bind=\"!isVisible\"; style=\"margin-top:0px\">Loading WiFi settings ...</h4>\n\n    <form action=\"#\" show.bind=\"isVisible\">\n      <h4>XY AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n        </tr>\n        <tr>\n          <td><input value.bind=\"apSsid\">\n          <td><input type=\"password\" value.bind=\"apPwd\">\n        </tr>\n      </table>\n      <h4>Other AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n          <th>Static IP (optional)</th>\n        </tr>\n        <tr repeat.for=\"ssid of eeprom_ssids\">\n          <td><input value.bind=\"ssid.ssid\">\n          <td><input type=\"password\" value.bind=\"ssid.password\">\n          <td><input value.bind=\"ssid.staticIp\">\n        </tr>\n      </table>\n      <button click.trigger=\"refresh()\">Reset</button>\n      <button click.trigger=\"submit()\">Save</button>\n    </form>\n  </div>\n</template>\n"; });
-define('text!ssid-list.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"margin:50px 0 15px 0; border:1px solid black;\n              padding:5px; min-height:50px\">\n\n  <div style=\"font-weight:bold; float:left; margin-top:0px\"\n       show.bind=\"!isVisible\">Scanning for SSIDs ...</div>\n  <div style=\"font-weight:bold; float:left; margin:15px 0;\"\n       show.bind=\"isVisible\">Add SSID to list above.\n  </div>\n  <button  show.bind=\"isVisible\" style=\"margin:15px 20px\"\n           click.trigger=\"refresh()\" type=\"submit\">Refresh</button>\n\n  <table class=\"ssid-table\" show.bind=\"isVisible\">\n    <tr>\n      <th></th>\n      <th>SSID</th>\n      <th>Strength</th>\n      <th style=\"padding-right:10px; text-align:right\">Open</th>\n    </tr>\n    <tr repeat.for=\"ssid of ssids\">\n      <td><button click.delegate=\"add(ssid)\">Add</button></td>\n      <td>${ssid.ssid}</td>\n      <td style=\"text-align:right\">${ssid.rssi}</td>\n      <td style=\"text-align:right\">${ssid.encryptionType}</td>\n    </tr>\n  </table>\n</template>\n"; });
+define('text!styles.css', ['module'], function(module) { module.exports = "html {\n  box-sizing: border-box;\n}\n*,\n*:before,\n*:after {\n  box-sizing: inherit;\n}\na {\n  text-decoration: none;\n  color: black;\n}\nbody {\n  padding: 10px 20px;\n}\n.navbar {\n  border: 1px solid black;\n  padding: 4px;\n}\n.xy-hdr {\n  float: right;\n  font-size: 20px;\n  font-weight: bold;\n  margin-top: 15px;\n}\n.nav-btn {\n  padding: 2px;\n  border: 1px solid gray;\n  font-weight: bold;\n  border-radius: 5px;\n  background-color: #eee;\n  margin: 5px;\n}\n.nav-btn.active {\n  color: gray;\n}\n.router-view {\n  width: 100%;\n  margin-top: 15px;\n}\n.ssid-table {\n  margin-top: 5px;\n}\n.ssid-table th {\n  text-align: left;\n}\n.ssid-table td {\n  padding: 3px 5px;\n}\n.ssid-table td button {\n  margin-right: 15px;\n}\n"; });
+define('text!apps/apps.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"router-view\">\n    APPS\n  <div>\n</template>\n"; });
+define('text!network/network.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./ssid-form\"></require>\n  <require from=\"./ssid-list\"></require>\n\n  <div class=\"router-view\">\n    <ssid-form></ssid-form>\n    <ssid-list></ssid-list>\n  <div>\n</template>\n"; });
+define('text!network/ssid-form.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"margin:50px 0 15px 0; border:1px solid black; padding:5px\">\n\n    <h4 show.bind=\"!isVisible\"; style=\"margin-top:0px\">Loading WiFi settings ...</h4>\n\n    <form action=\"#\" show.bind=\"isVisible\">\n      <h4>XY AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n        </tr>\n        <tr>\n          <td><input value.bind=\"apSsid\">\n          <td><input type=\"password\" value.bind=\"apPwd\">\n        </tr>\n      </table>\n      <h4>Other AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n          <th>Static IP (optional)</th>\n        </tr>\n        <tr repeat.for=\"ssid of eeprom_ssids\">\n          <td><input value.bind=\"ssid.ssid\">\n          <td><input type=\"password\" value.bind=\"ssid.password\">\n          <td><input value.bind=\"ssid.staticIp\">\n        </tr>\n      </table>\n      <button click.trigger=\"refresh()\">Reset</button>\n      <button click.trigger=\"submit()\">Save</button>\n    </form>\n  </div>\n</template>\n"; });
+define('text!network/ssid-list.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"margin:50px 0 15px 0; border:1px solid black;\n              padding:5px; min-height:50px\">\n\n  <div style=\"font-weight:bold; float:left; margin-top:0px\"\n       show.bind=\"!isVisible\">Scanning for SSIDs ...</div>\n  <div style=\"font-weight:bold; float:left; margin:15px 0;\"\n       show.bind=\"isVisible\">Add SSID to list above.\n  </div>\n  <button  show.bind=\"isVisible\" style=\"margin:15px 20px\"\n           click.trigger=\"refresh()\" type=\"submit\">Refresh</button>\n\n  <table class=\"ssid-table\" show.bind=\"isVisible\">\n    <tr>\n      <th></th>\n      <th>SSID</th>\n      <th>Strength</th>\n      <th style=\"padding-right:10px; text-align:right\">Open</th>\n    </tr>\n    <tr repeat.for=\"ssid of ssids\">\n      <td><button click.delegate=\"add(ssid)\">Add</button></td>\n      <td>${ssid.ssid}</td>\n      <td style=\"text-align:right\">${ssid.rssi}</td>\n      <td style=\"text-align:right\">${ssid.encryptionType}</td>\n    </tr>\n  </table>\n</template>\n"; });
+define('text!platform/platform.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"router-view\">\n    PLATFORM\n  <div>\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map

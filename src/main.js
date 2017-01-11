@@ -1,6 +1,6 @@
 import environment from './environment';
 
-window.DEBUG_HOST = 'http://192.168.1.235';
+window.DEBUG_HOST = 'http://192.168.1.243';
 
 //Configure Bluebird Promises.
 Promise.config({
