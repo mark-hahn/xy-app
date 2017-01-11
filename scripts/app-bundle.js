@@ -1133,18 +1133,20 @@ define('ssid-form',['exports', 'aurelia-http-client'], function (exports, _aurel
           console.log('Invalid json in eepromssids ajax response', data.response);
           return;
         }
+        _this.apSsid = ssids[0].apSsid;
+        _this.apPwd = ssids[0].apPwd;
         for (var i = 1; i < ssids.length; i++) {
           var ssid = ssids[i];
           ssid.staticIp = ssid.staticIp == '0.0.0.0' ? "" : ssid.staticIp;
         }
         _this.eeprom_ssids = ssids.slice(1);
-        _this.heading = "WiFi AP settings";
+        console.log("eeprom_ssids refresh:", _this.eeprom_ssids[0]);
         _this.isVisible = true;
       });
     };
 
     SsidForm.prototype.submit = function submit() {
-      console.log("eeprom_ssids save:", this.eeprom_ssids);
+      console.log("eeprom_ssids save:", this.eeprom_ssids[0]);
     };
 
     return SsidForm;
@@ -1230,6 +1232,6 @@ define('text!styles.css', ['module'], function(module) { module.exports = "html 
 define('text!apps.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"router-view\">\n    APPS\n  <div>\n</template>\n"; });
 define('text!network.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./ssid-form\"></require>\n  <require from=\"./ssid-list\"></require>\n\n  <div class=\"router-view\">\n    <ssid-form></ssid-form>\n    <ssid-list></ssid-list>\n  <div>\n</template>\n"; });
 define('text!platform.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"router-view\">\n    PLATFORM\n  <div>\n</template>\n"; });
-define('text!ssid-form.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"margin:50px 0 15px 0; border:1px solid black; padding:5px\">\n\n    <h4 show.bind=\"!isVisible\"; style=\"margin-top:0px\">Loading WiFi settings ...</h4>\n\n    <form href=\"/setssids\" action=\"POST\" show.bind=\"isVisible\">\n      <h4>XY AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n        </tr>\n        <tr>\n          <td><input value.bind=\"ssid.ssid\">\n          <td><input type=\"password\" value.bind=\"ssid.password\">\n        </tr>\n      </table>\n      <h4>Other AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n          <th>Static IP (optional)</th>\n        </tr>\n        <tr repeat.for=\"ssid of eeprom_ssids\">\n          <td><input value.bind=\"ssid.ssid\">\n          <td><input type=\"password\" value.bind=\"ssid.password\">\n          <td><input value.bind=\"ssid.staticIp\">\n        </tr>\n      </table>\n      <button click.trigger=\"refresh()\" type=\"submit\">Reset</button>\n      <button click.trigger=\"submit()\" type=\"submit\">Save</button>\n    </form>\n  </div>\n</template>\n"; });
+define('text!ssid-form.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"margin:50px 0 15px 0; border:1px solid black; padding:5px\">\n\n    <h4 show.bind=\"!isVisible\"; style=\"margin-top:0px\">Loading WiFi settings ...</h4>\n\n    <form href=\"/setssids\" action=\"POST\" show.bind=\"isVisible\">\n      <h4>XY AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n        </tr>\n        <tr>\n          <td><input value.bind=\"apSsid\">\n          <td><input type=\"password\" value.bind=\"apPwd\">\n        </tr>\n      </table>\n      <h4>Other AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n          <th>Static IP (optional)</th>\n        </tr>\n        <tr repeat.for=\"ssid of eeprom_ssids\">\n          <td><input value.bind=\"ssid.ssid\">\n          <td><input type=\"password\" value.bind=\"ssid.password\">\n          <td><input value.bind=\"ssid.staticIp\">\n        </tr>\n      </table>\n      <button click.trigger=\"refresh()\" type=\"submit\">Reset</button>\n      <button click.trigger=\"submit()\" type=\"submit\">Save</button>\n    </form>\n  </div>\n</template>\n"; });
 define('text!ssid-list.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"margin:50px 0 15px 0; border:1px solid black;\n              padding:5px; min-height:50px\">\n\n  <div style=\"font-weight:bold; float:left; margin-top:0px\"\n       show.bind=\"!isVisible\">Scanning for SSIDs ...</div>\n  <div style=\"font-weight:bold; float:left; margin:15px 0;\"\n       show.bind=\"isVisible\">Add SSID to list above.\n  </div>\n  <button  show.bind=\"isVisible\" style=\"margin:15px 20px\"\n           click.trigger=\"refresh()\" type=\"submit\">Refresh</button>\n\n  <table class=\"ssid-table\" show.bind=\"isVisible\">\n    <tr>\n      <th></th>\n      <th>SSID</th>\n      <th>Strength</th>\n      <th style=\"padding-right:10px; text-align:right\">Open</th>\n    </tr>\n    <tr repeat.for=\"ssid of ssids\">\n      <td><button click.delegate=\"add(ssid)\">Add</button></td>\n      <td>${ssid.ssid}</td>\n      <td style=\"text-align:right\">${ssid.rssi}</td>\n      <td style=\"text-align:right\">${ssid.encryptionType}</td>\n    </tr>\n  </table>\n</template>\n"; });
 //# sourceMappingURL=app-bundle.js.map

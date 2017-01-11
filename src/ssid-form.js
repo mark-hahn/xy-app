@@ -21,17 +21,19 @@ export class SsidForm {
                      data.response);
         return;
       }
+      this.apSsid = ssids[0].apSsid;
+      this.apPwd  = ssids[0].apPwd;
       for(let i=1; i < ssids.length; i++) {
         let ssid = ssids[i];
         ssid.staticIp = (ssid.staticIp == '0.0.0.0') ? "" : ssid.staticIp;
       }
       this.eeprom_ssids = ssids.slice(1);
-      this.heading = "WiFi AP settings";
+      console.log("eeprom_ssids refresh:", this.eeprom_ssids[0]);
       this.isVisible = true;
     });
   }
 
   submit() {
-    console.log("eeprom_ssids save:", this.eeprom_ssids);
+    console.log("eeprom_ssids save:", this.eeprom_ssids[0]);
   }
 }
