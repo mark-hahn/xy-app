@@ -1,5 +1,7 @@
 import environment from './environment';
 
+window.DEBUG_HOST = 'http://192.168.1.235';
+
 //Configure Bluebird Promises.
 Promise.config({
   longStackTraces: environment.debug,
