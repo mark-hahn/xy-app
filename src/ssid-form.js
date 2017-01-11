@@ -28,12 +28,15 @@ export class SsidForm {
         ssid.staticIp = (ssid.staticIp == '0.0.0.0') ? "" : ssid.staticIp;
       }
       this.eeprom_ssids = ssids.slice(1);
-      console.log("eeprom_ssids refresh:", this.eeprom_ssids[0]);
       this.isVisible = true;
     });
   }
 
   submit() {
-    console.log("eeprom_ssids save:", this.eeprom_ssids[0]);
+    let client = new HttpClient();
+    let jsonArr = [{apSsid: this.apSsid, apPwd: this.apPwd}]
+                  .concat(this.eeprom_ssids);
+    console.log("eeprom_ssids save:", jsonArr);
+    client.post(window.DEBUG_HOST + '/setssids', jsonArr);
   }
 }

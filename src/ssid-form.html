@@ -3,7 +3,7 @@
 
     <h4 show.bind="!isVisible"; style="margin-top:0px">Loading WiFi settings ...</h4>
 
-    <form href="/setssids" action="POST" show.bind="isVisible">
+    <form action="#" show.bind="isVisible">
       <h4>XY AP settings</h4>
       <table class="ssid-table">
         <tr>
@@ -28,8 +28,8 @@
           <td><input value.bind="ssid.staticIp">
         </tr>
       </table>
-      <button click.trigger="refresh()" type="submit">Reset</button>
-      <button click.trigger="submit()" type="submit">Save</button>
+      <button click.trigger="refresh()">Reset</button>
+      <button click.trigger="submit()">Save</button>
     </form>
   </div>
 </template>
