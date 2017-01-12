@@ -1,3 +1,4 @@
+
 import {HttpClient} from 'lib/aurelia-http-client';
 import {inject, NewInstance} from 'aurelia-dependency-injection';
 import {ValidationRules, ValidationController} from 'aurelia-validation';
@@ -7,12 +8,10 @@ export class SsidForm {
   controller = null;
 
   constructor(controller) {
+    ValidationRules
+      .ensure('apSsid').displayName('XY AP SSID').required().maxLength(32)
+      .ensure('apPwd').displayName('XY AP Password').required().maxLength(32).minLength(8).on(SsidForm);
     this.controller = controller;
-    this.rules = ValidationRules.ensure('apSsid')
-                   .displayName('XY AP SSID')
-                   .required()
-                   .maxLength(32)
-                   .rules;
     this.eeprom_ssids = [];
     this.refresh();
   }
@@ -48,11 +47,9 @@ export class SsidForm {
       if (result.valid) {
         let client = new HttpClient();
         let jsonArr = [{apSsid: this.apSsid, apPwd: this.apPwd}]
-        .concat(this.eeprom_ssids);
+                      .concat(this.eeprom_ssids);
         console.log("eeprom_ssids save:", jsonArr);
         client.post(window.DEBUG_HOST + '/setssids', jsonArr);
-      } else {
-        // validation failed
       }
     });
   }
