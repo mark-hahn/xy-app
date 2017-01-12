@@ -1136,7 +1136,7 @@ define('network/network',["exports"], function (exports) {
     _classCallCheck(this, Network);
   };
 });
-define('network/ssid-form',['exports', 'lib/aurelia-http-client', 'aurelia-dependency-injection', 'aurelia-validation'], function (exports, _aureliaHttpClient, _aureliaDependencyInjection, _aureliaValidation) {
+define('network/ssid-form',['exports', 'lib/aurelia-http-client', 'aurelia-dependency-injection', 'aurelia-validation', 'aurelia-event-aggregator', 'messages'], function (exports, _aureliaHttpClient, _aureliaDependencyInjection, _aureliaValidation, _aureliaEventAggregator, _messages) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -1152,8 +1152,10 @@ define('network/ssid-form',['exports', 'lib/aurelia-http-client', 'aurelia-depen
 
   var _dec, _class;
 
-  var SsidForm = exports.SsidForm = (_dec = (0, _aureliaDependencyInjection.inject)(_aureliaDependencyInjection.NewInstance.of(_aureliaValidation.ValidationController)), _dec(_class = function () {
-    function SsidForm(controller) {
+  var SsidForm = exports.SsidForm = (_dec = (0, _aureliaDependencyInjection.inject)(_aureliaDependencyInjection.NewInstance.of(_aureliaValidation.ValidationController), _aureliaEventAggregator.EventAggregator), _dec(_class = function () {
+    function SsidForm(controller, ea) {
+      var _this = this;
+
       _classCallCheck(this, SsidForm);
 
       this.controller = null;
@@ -1162,10 +1164,36 @@ define('network/ssid-form',['exports', 'lib/aurelia-http-client', 'aurelia-depen
       this.controller = controller;
       this.eeprom_ssids = [];
       this.refresh();
+
+      ea.subscribe(_messages.AddSsidToFormMsg, function (msg) {
+        console.log('got msg ssidName', msg.ssidName);
+        for (var _iterator = _this.eeprom_ssids, _isArray = Array.isArray(_iterator), _i = 0, _iterator = _isArray ? _iterator : _iterator[Symbol.iterator]();;) {
+          var _ref;
+
+          if (_isArray) {
+            if (_i >= _iterator.length) break;
+            _ref = _iterator[_i++];
+          } else {
+            _i = _iterator.next();
+            if (_i.done) break;
+            _ref = _i.value;
+          }
+
+          var ssid = _ref;
+
+          if (ssid.ssid === msg.ssidName) return;
+          if (ssid.ssid.length === 0) {
+            ssid.ssid = msg.ssidName;
+            ssid.password = "";
+            ssid.staticIp = "";
+            return;
+          }
+        }
+      });
     }
 
     SsidForm.prototype.refresh = function refresh() {
-      var _this = this;
+      var _this2 = this;
 
       this.isVisible = false;
       this.heading = "Loading WiFi AP settings ...";
@@ -1179,24 +1207,24 @@ define('network/ssid-form',['exports', 'lib/aurelia-http-client', 'aurelia-depen
           console.log('Invalid json in eepromssids ajax response', data.response);
           return;
         }
-        _this.apSsid = ssids[0].apSsid;
-        _this.apPwd = ssids[0].apPwd;
+        _this2.apSsid = ssids[0].apSsid;
+        _this2.apPwd = ssids[0].apPwd;
         for (var i = 1; i < ssids.length; i++) {
           var ssid = ssids[i];
           ssid.staticIp = ssid.staticIp == '0.0.0.0' ? "" : ssid.staticIp;
         }
-        _this.eeprom_ssids = ssids.slice(1);
-        _this.isVisible = true;
+        _this2.eeprom_ssids = ssids.slice(1);
+        _this2.isVisible = true;
       });
     };
 
     SsidForm.prototype.submit = function submit() {
-      var _this2 = this;
+      var _this3 = this;
 
       this.controller.validate().then(function (result) {
         if (result.valid) {
           var client = new _aureliaHttpClient.HttpClient();
-          var jsonArr = [{ apSsid: _this2.apSsid, apPwd: _this2.apPwd }].concat(_this2.eeprom_ssids);
+          var jsonArr = [{ apSsid: _this3.apSsid, apPwd: _this3.apPwd }].concat(_this3.eeprom_ssids);
           console.log("eeprom_ssids save:", jsonArr);
           client.post(window.DEBUG_HOST + '/setssids', jsonArr);
         }
@@ -1206,7 +1234,7 @@ define('network/ssid-form',['exports', 'lib/aurelia-http-client', 'aurelia-depen
     return SsidForm;
   }()) || _class);
 });
-define('network/ssid-list',['exports', 'lib/aurelia-http-client'], function (exports, _aureliaHttpClient) {
+define('network/ssid-list',['exports', 'lib/aurelia-http-client', 'aurelia-event-aggregator', 'messages'], function (exports, _aureliaHttpClient, _aureliaEventAggregator, _messages) {
   'use strict';
 
   Object.defineProperty(exports, "__esModule", {
@@ -1220,10 +1248,13 @@ define('network/ssid-list',['exports', 'lib/aurelia-http-client'], function (exp
     }
   }
 
-  var SsidList = exports.SsidList = function () {
-    function SsidList() {
+  var _class, _temp;
+
+  var SsidList = exports.SsidList = (_temp = _class = function () {
+    function SsidList(ea) {
       _classCallCheck(this, SsidList);
 
+      this.ea = ea;
       this.ssids = [];
       this.refresh();
     }
@@ -1267,10 +1298,11 @@ define('network/ssid-list',['exports', 'lib/aurelia-http-client'], function (exp
 
     SsidList.prototype.add = function add(ssid) {
       console.log("Add:", ssid);
+      this.ea.publish(new _messages.AddSsidToFormMsg(ssid.ssid));
     };
 
     return SsidList;
-  }();
+  }(), _class.inject = [_aureliaEventAggregator.EventAggregator], _temp);
 });
 define('platform/platform',["exports"], function (exports) {
   "use strict";
@@ -2831,9 +2863,28 @@ define('aurelia-validation/implementation/validation-rules',["require", "exports
     exports.ValidationRules = ValidationRules;
 });
 
+define('messages',["exports"], function (exports) {
+  "use strict";
+
+  Object.defineProperty(exports, "__esModule", {
+    value: true
+  });
+
+  function _classCallCheck(instance, Constructor) {
+    if (!(instance instanceof Constructor)) {
+      throw new TypeError("Cannot call a class as a function");
+    }
+  }
+
+  var AddSsidToFormMsg = exports.AddSsidToFormMsg = function AddSsidToFormMsg(ssidName) {
+    _classCallCheck(this, AddSsidToFormMsg);
+
+    this.ssidName = ssidName;
+  };
+});
 define('text!app.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./styles.css\"></require>\n  <require from=\"platform/platform\"></require>\n  <require from=\"apps/apps\"></require>\n  <require from=\"network/network\"></require>\n  <require from=\"lib/route-highlight\"></require>\n\n  <img height=40 src=\"images/eridien-logo.jpg\">\n  <div class=\"xy-hdr\">\n    XY ${router.currentInstruction.config.title}\n  </div>\n\n  <nav class=\"navbar\" role=\"navigation\">\n    <a class=\"nav-btn\" route-href=\"route: platform\"\n      route-highlight=\"routes: platform\">Platform</a>\n    <a class=\"nav-btn\" route-href=\"route: apps\"\n      route-highlight=\"routes: apps\">Apps</a>\n    <a class=\"nav-btn\" route-href=\"route: network\"\n       route-highlight=\"routes: network\">Network</a>\n  </nav>\n\n  <router-view> </router-view>\n\n</template>\n"; });
-define('text!ssid-form.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"margin:50px 0 15px 0; border:1px solid black; padding:5px\">\n\n    <h4 show.bind=\"!isVisible\"; style=\"margin-top:0px\">Loading WiFi settings ...</h4>\n\n    <form action=\"#\" show.bind=\"isVisible\">\n      <h4>XY AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n        </tr>\n        <tr>\n          <td><input value.bind=\"apSsid\">\n          <td><input type=\"password\" value.bind=\"apPwd\">\n        </tr>\n      </table>\n      <h4>Other AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n          <th>Static IP (optional)</th>\n        </tr>\n        <tr repeat.for=\"ssid of eeprom_ssids\">\n          <td><input value.bind=\"ssid.ssid\">\n          <td><input type=\"password\" value.bind=\"ssid.password\">\n          <td><input value.bind=\"ssid.staticIp\">\n        </tr>\n      </table>\n      <button click.trigger=\"refresh()\">Reset</button>\n      <button click.trigger=\"submit()\">Save</button>\n    </form>\n  </div>\n</template>\n"; });
 define('text!styles.css', ['module'], function(module) { module.exports = "html {\n  box-sizing: border-box;\n}\n*,\n*:before,\n*:after {\n  box-sizing: inherit;\n}\na {\n  text-decoration: none;\n  color: black;\n}\nbody {\n  padding: 10px 20px;\n}\n.navbar {\n  border: 1px solid black;\n  padding: 4px;\n}\n.xy-hdr {\n  float: right;\n  font-size: 20px;\n  font-weight: bold;\n  margin-top: 15px;\n}\n.nav-btn {\n  padding: 2px;\n  border: 1px solid gray;\n  font-weight: bold;\n  border-radius: 5px;\n  background-color: #eee;\n  margin: 5px;\n}\n.nav-btn.active {\n  color: gray;\n}\n.router-view {\n  width: 100%;\n  margin-top: 15px;\n}\n.ssid-table {\n  margin-top: 5px;\n}\n.ssid-table th {\n  text-align: left;\n}\n.ssid-table td {\n  padding: 3px 5px;\n}\n.ssid-table td button {\n  margin-right: 15px;\n}\n"; });
+define('text!ssid-form.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"margin:50px 0 15px 0; border:1px solid black; padding:5px\">\n\n    <h4 show.bind=\"!isVisible\"; style=\"margin-top:0px\">Loading WiFi settings ...</h4>\n\n    <form action=\"#\" show.bind=\"isVisible\">\n      <h4>XY AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n        </tr>\n        <tr>\n          <td><input value.bind=\"apSsid\">\n          <td><input type=\"password\" value.bind=\"apPwd\">\n        </tr>\n      </table>\n      <h4>Other AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n          <th>Static IP (optional)</th>\n        </tr>\n        <tr repeat.for=\"ssid of eeprom_ssids\">\n          <td><input value.bind=\"ssid.ssid\">\n          <td><input type=\"password\" value.bind=\"ssid.password\">\n          <td><input value.bind=\"ssid.staticIp\">\n        </tr>\n      </table>\n      <button click.trigger=\"refresh()\">Reset</button>\n      <button click.trigger=\"submit()\">Save</button>\n    </form>\n  </div>\n</template>\n"; });
 define('text!apps/apps.html', ['module'], function(module) { module.exports = "<template>\n  <div class=\"router-view\">\n    APPS\n  <div>\n</template>\n"; });
 define('text!network/network.html', ['module'], function(module) { module.exports = "<template>\n  <require from=\"./ssid-form\"></require>\n  <require from=\"./ssid-list\"></require>\n\n  <div class=\"router-view\">\n    <ssid-form></ssid-form>\n    <ssid-list></ssid-list>\n  <div>\n</template>\n"; });
 define('text!network/ssid-form.html', ['module'], function(module) { module.exports = "<template>\n  <div style=\"margin:50px 0 15px 0; border:1px solid black; padding:5px\">\n\n    <h4 show.bind=\"!isVisible\"; style=\"margin-top:0px\">Loading WiFi settings ...</h4>\n\n    <form action=\"#\" show.bind=\"isVisible\">\n      <h4>XY AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n        </tr>\n        <tr>\n          <td><input value.bind=\"apSsid & validate\">\n          <td><input type=\"password\" value.bind=\"apPwd & validate\">\n        </tr>\n      </table>\n      <h4>Other AP settings</h4>\n      <table class=\"ssid-table\">\n        <tr>\n          <th>SSID</th>\n          <th>Password</th>\n          <th>Static IP (optional)</th>\n        </tr>\n        <tr repeat.for=\"ssid of eeprom_ssids\">\n          <td><input value.bind=\"ssid.ssid\">\n          <td><input type=\"password\" value.bind=\"ssid.password\">\n          <td><input value.bind=\"ssid.staticIp\">\n        </tr>\n      </table>\n      <button click.trigger=\"submit()\">Save</button>\n      <button click.trigger=\"refresh()\" style=\"margin-left:20px\">Reset</button>\n      <ul if.bind=\"controller.errors\">\n        <li style=\"color:red\" repeat.for=\"error of controller.errors\">\n          ${error.message}\n        </li>\n      </ul>\n    </form>\n  </div>\n</template>\n"; });

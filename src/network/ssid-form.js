@@ -2,18 +2,35 @@
 import {HttpClient} from 'lib/aurelia-http-client';
 import {inject, NewInstance} from 'aurelia-dependency-injection';
 import {ValidationRules, ValidationController} from 'aurelia-validation';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {AddSsidToFormMsg} from 'messages'
 
-@inject(NewInstance.of(ValidationController))
+@inject(NewInstance.of(ValidationController), EventAggregator)
 export class SsidForm {
   controller = null;
 
-  constructor(controller) {
+  constructor(controller, ea) {
     ValidationRules
       .ensure('apSsid').displayName('XY AP SSID').required().maxLength(32)
       .ensure('apPwd').displayName('XY AP Password').required().maxLength(32).minLength(8).on(SsidForm);
     this.controller = controller;
     this.eeprom_ssids = [];
     this.refresh();
+
+    ea.subscribe(AddSsidToFormMsg,
+      msg => {
+        console.log('got msg ssidName', msg.ssidName);
+        for(let ssid of this.eeprom_ssids) {
+          if(ssid.ssid === msg.ssidName) return;
+          if(ssid.ssid.length === 0) {
+            ssid.ssid     = msg.ssidName;
+            ssid.password = "";
+            ssid.staticIp = "";
+            return;
+          }
+        }
+      }
+    )
   }
 
   refresh() {

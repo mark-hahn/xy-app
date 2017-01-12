@@ -1,7 +1,12 @@
 import {HttpClient} from 'lib/aurelia-http-client';
+import {EventAggregator} from 'aurelia-event-aggregator';
+import {AddSsidToFormMsg} from 'messages'
 
 export class SsidList {
-  constructor() {
+  static inject = [EventAggregator];
+
+  constructor(ea) {
+    this.ea = ea;
     this.ssids = [];
     this.refresh();
   }
@@ -29,5 +34,6 @@ export class SsidList {
 
   add(ssid) {
     console.log("Add:",ssid);
+    this.ea.publish(new AddSsidToFormMsg(ssid.ssid));
   }
 }
