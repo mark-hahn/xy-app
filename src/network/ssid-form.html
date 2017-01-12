@@ -11,7 +11,7 @@
           <th>Password</th>
         </tr>
         <tr>
-          <td><input value.bind="apSsid">
+          <td><input value.bind="apSsid & validate:rules">
           <td><input type="password" value.bind="apPwd">
         </tr>
       </table>
@@ -28,8 +28,13 @@
           <td><input value.bind="ssid.staticIp">
         </tr>
       </table>
-      <button click.trigger="refresh()">Reset</button>
       <button click.trigger="submit()">Save</button>
+      <button click.trigger="refresh()" style="margin-left:20px">Reset</button>
+      <ul if.bind="controller.errors">
+        <li style="color:red" repeat.for="error of controller.errors">
+          ${error.message}
+        </li>
+      </ul>
     </form>
   </div>
 </template>
