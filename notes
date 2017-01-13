@@ -1,3 +1,4 @@
 
-- Cannot contact host server with bin files while on XY AP
+- Cannot contact host server to get bin files while on XY AP
 - complete validation rules on net form
+     http://stackoverflow.com/questions/41605570/aurelia-validation-property-expression-help-needed/41610880#41610880

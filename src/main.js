@@ -1,7 +1,7 @@
 import environment from './environment';
 
-window.DEBUG_HOST = 'http://192.168.1.243';
-// window.DEBUG_HOST = 'http://192.168.4.1';
+window.ajaxHost = (location.port === '9000' ? 'http://192.168.1.243'  : '');
+console.log('using', (window.ajaxHost?window.ajaxHost:'root'), "for ajax");
 
 //Configure Bluebird Promises.
 Promise.config({

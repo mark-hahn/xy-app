@@ -38,8 +38,7 @@ export class SsidForm {
     this.heading = "Loading WiFi AP settings ...";
 
     let client = new HttpClient();
-    let host = (location.port === '9000' ? window.DEBUG_HOST  : '');
-    client.get(host + '/eepromssids')
+    client.get(window.ajaxHost + '/eepromssids')
     .then(data => {
       try {
         var ssids = JSON.parse(data.response);
@@ -66,7 +65,7 @@ export class SsidForm {
         let jsonArr = [{apSsid: this.apSsid, apPwd: this.apPwd}]
                       .concat(this.eeprom_ssids);
         console.log("eeprom_ssids save:", jsonArr);
-        client.post(window.DEBUG_HOST + '/setssids', jsonArr);
+        client.post(window.ajaxHost + '/setssids', jsonArr);
       }
     });
   }

@@ -15,8 +15,7 @@ export class SsidList {
     this.isVisible = false;
 
     let client = new HttpClient();
-    let host = (location.port === '9000' ? window.DEBUG_HOST  : '');
-    client.get(host + '/ssids')
+    client.get(window.ajaxHost + '/ssids')
       .then(data => {
         try {
           var ssids = JSON.parse(data.response);
@@ -25,7 +24,7 @@ export class SsidList {
           return;
         }
         for(let ssid of ssids)
-          ssid.encryptionType = (ssid.encryptionType == 'NONE') ? "yes" : "";
+          ssid.encryptionType = (ssid.encryptionType == 'NONE') ? "open" : "";
         ssids.sort((a,b) => b.rssi - a.rssi);
         this.ssids = ssids;
         this.isVisible = true;
