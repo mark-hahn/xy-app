@@ -8,6 +8,7 @@ import {AddSsidToFormMsg, WifiChanged} from 'messages';
 @inject(NewInstance.of(ValidationController), EventAggregator)
 export class SsidForm {
   controller = null;
+  this.ea = ea;
 
   constructor(controller, ea) {
     ValidationRules
