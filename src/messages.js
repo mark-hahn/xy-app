@@ -4,3 +4,5 @@ export class AddSsidToFormMsg {
     this.ssidName = ssidName;
   }
 }
+
+export class WifiChanged {}

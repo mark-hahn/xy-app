@@ -3,7 +3,7 @@ import {HttpClient} from 'lib/aurelia-http-client';
 import {inject, NewInstance} from 'aurelia-dependency-injection';
 import {ValidationRules, ValidationController} from 'aurelia-validation';
 import {EventAggregator} from 'aurelia-event-aggregator';
-import {AddSsidToFormMsg} from 'messages'
+import {AddSsidToFormMsg, WifiChanged} from 'messages';
 
 @inject(NewInstance.of(ValidationController), EventAggregator)
 export class SsidForm {
@@ -66,6 +66,7 @@ export class SsidForm {
                       .concat(this.eeprom_ssids);
         console.log("eeprom_ssids save:", jsonArr);
         client.post(window.ajaxHost + '/setssids', jsonArr);
+        setTimeout(() => {this.ea.publish(new WifiChanged())}, 1000);
       }
     });
   }
