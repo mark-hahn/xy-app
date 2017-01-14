@@ -1,0 +1,26 @@
+
+<template>
+  <div style="margin:50px 0 15px 0; border:1px solid black;
+              padding:5px; min-height:50px; width:600px">
+
+    <div style="font-weight:bold; float:left; margin-top:0px"
+         show.bind="!isVisible">Loading WiFi Status ...</div>
+    <div style="font-weight:bold; float:left; margin:15px 0;"
+         show.bind="isVisible">WiFi Status </div>
+    <button  show.bind="isVisible" style="margin:15px 20px"
+             click.trigger="refresh()" type="submit">Refresh</button>
+
+    <ul class="ssid-table" show.bind="isVisible">
+      <li> XY is hosting the access point <b>${apSsid}</b> at <b>${apIp}</b>. </li>
+      <li> XY is connected to to the access point <b>${staSsid}</b>
+           at <b>${staIp} (http://xy.local)</b>.
+      <li show.bind="isConnected">
+        XY is using <b>${connSsid}</b> to connect to your computer. </li>
+      <li show.bind="isConnected">
+        Your computer and XY are connected to the internet. </li>
+      <li show.bind="!isConnected"> XY is not connected to an access point. </li>
+      <li show.bind="!isConnected">
+        Your computer and XY have no access to the internet. </li>
+    </ul>
+  </div>
+</template>
