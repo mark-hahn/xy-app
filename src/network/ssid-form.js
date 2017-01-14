@@ -1,19 +1,20 @@
 
 import {HttpClient} from 'lib/aurelia-http-client';
 import {inject, NewInstance} from 'aurelia-dependency-injection';
-import {ValidationRules, ValidationController} from 'aurelia-validation';
+// import {ValidationRules, ValidationController} from 'aurelia-validation';
 import {EventAggregator} from 'aurelia-event-aggregator';
 import {AddSsidToFormMsg, WifiChanged} from 'messages';
 
-@inject(NewInstance.of(ValidationController), EventAggregator)
+@inject(EventAggregator)
+// @inject(NewInstance.of(ValidationController), EventAggregator)
 export class SsidForm {
   controller = null;
   this.ea = ea;
 
   constructor(controller, ea) {
-    ValidationRules
-      .ensure('apSsid').displayName('XY AP SSID').required().maxLength(32)
-      .ensure('apPwd').displayName('XY AP Password').required().maxLength(32).minLength(8).on(SsidForm);
+    // ValidationRules
+    //   .ensure('apSsid').displayName('XY AP SSID').required().maxLength(32)
+    //   .ensure('apPwd').displayName('XY AP Password').required().maxLength(32).minLength(8).on(SsidForm);
     this.controller = controller;
     this.eeprom_ssids = [];
     this.refresh();
@@ -60,15 +61,15 @@ export class SsidForm {
   }
 
   submit() {
-    this.controller.validate().then(result => {
-      if (result.valid) {
+    // this.controller.validate().then(result => {
+    //   if (result.valid) {
         let client = new HttpClient();
         let jsonArr = [{apSsid: this.apSsid, apPwd: this.apPwd}]
                       .concat(this.eeprom_ssids);
         console.log("eeprom_ssids save:", jsonArr);
         client.post(window.ajaxHost + '/setssids', jsonArr);
         setTimeout(() => {this.ea.publish(new WifiChanged())}, 1000);
-      }
-    });
+    //   }
+    // });
   }
 }
